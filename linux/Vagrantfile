@@ -1,0 +1,46 @@
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.network "public_network"
+  #config.ssh.private_key_path = "~/.ssh/id_rsa"
+  config.ssh.username = 'vagrant'
+  config.ssh.password = 'vagrant'
+  config.ssh.insert_key = false
+  port = 2221
+  config.vm.network "forwarded_port", guest: 22, host: port
+  config.vm.provider "virtualbox" do |v|
+    v.gui = true
+    v.customize ["modifyvm", :id, "--usb", "on"]
+    v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'Arduino', '--vendorid', '0x2341', '--productid', '0x0043']
+  end
+  config.vm.boot_timeout = 1000
+  config.vm.provision :shell, :inline => "sudo apt-get update"
+  config.vm.provision :shell, :inline => "sudo apt-get install -y build-essential libusb-1.0-0-dev libudev-dev make git linux-headers-3.13.0-61-generic --no-install-recommends"
+  config.vm.provision "shell" do |s|
+    s.inline = "curl -sL https://deb.nodesource.com/setup_0.12 | sudo bash -
+    sudo apt-add-repository multiverse;
+    sudo apt-get update -y;
+    sudo apt-get upgrade -y;
+    sudo apt-add-repository 'deb http://download.virtualbox.org/virtualbox/debian trusty contrib';
+    wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -;
+    sudo apt-get update -y;
+    sudo apt-get upgrade -y;
+    sudo apt-get install virtualbox-5.0 -y;
+    sudo apt-get install -y nodejs;
+    mkdir TESSEL2;
+    cd TESSEL2;
+    git clone https://github.com/Student007/t2-cli.git --branch t2-root --single-branch;
+    cd t2-cli;
+    sudo npm install -g usb --unsafe-per;
+    sudo npm install -g debug;
+    sudo npm cache clean;
+    "
+    s.privileged   = false
+  end
+  if ARGV[0] == 'up'
+    config.trigger.after :up do
+      run "ssh -o StrictHostKeyChecking=no -p "+port.to_s+"  vagrant@127.0.0.1 'cd /home/vagrant/TESSEL2/t2-cli; sudo npm link --local'"
+      run "ssh -o StrictHostKeyChecking=no -p "+port.to_s+"  vagrant@127.0.0.1 'cd ..;sudo npm install -g git+https://github.com/tessel/t2-vm'"
+      run "ssh -o StrictHostKeyChecking=no -p "+port.to_s+"  vagrant@127.0.0.1 'sudo npm install -g git+https://github.com/tessel/t2-compiler'"
+    end
+  end
+end

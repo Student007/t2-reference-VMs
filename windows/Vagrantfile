@@ -1,0 +1,26 @@
+Vagrant.configure(2) do |config|
+  config.vm.box = "ferventcoder/win7pro-x64-nocm-lite"
+  config.vm.guest = "windows"
+  config.ssh.insert_key = false
+  config.ssh.username = "vagrant"
+  config.ssh.password = "vagrant"
+  port = 2220
+  config.vm.network "public_network"
+  config.vm.network "forwarded_port", guest: 22, host: port
+  config.vm.communicator = "ssh"
+  if ARGV[0] == 'up'
+    config.trigger.after :up do
+      run "echo 'I am up and running..."+port.to_s+"'"
+      run 'ssh -o StrictHostKeyChecking=no -p '+port.to_s+' vagrant@127.0.0.1 setx /M PATH \"%PATH%;C:\\\Program Files\\\Oracle\\\VirtualBox\"'
+      run 'scp -o StrictHostKeyChecking=no -P '+port.to_s+' provision.sh vagrant@127.0.0.1:"c:\\\Users\\\vagrant\\\AppData\\\Roaming\\\Microsoft\\\Windows\\\Start\\\\ Menu\\\Programs\\\Startup\\\provision.sh"'
+      run 'scp -o StrictHostKeyChecking=no -P '+port.to_s+' postprovision.sh vagrant@127.0.0.1:"c:\\\Users\\\vagrant\\\postprovision.sh"'
+      run 'scp -o StrictHostKeyChecking=no -P '+port.to_s+' t2stuff.sh vagrant@127.0.0.1:"c:\\\Users\\\vagrant\\\t2stuff.sh"'
+      run "ssh -o StrictHostKeyChecking=no -p "+port.to_s+" vagrant@127.0.0.1 shutdown /r /f /t 1"
+    end
+  end
+  config.vm.provider "virtualbox" do |v|
+    v.gui = true
+    v.customize ["modifyvm", :id, "--usb", "on"]
+    v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'Arduino', '--vendorid', '0x2341', '--productid', '0x0043']
+  end
+end

@@ -1,0 +1,56 @@
+Vagrant.configure(2) do |config|
+  # original image:
+  #config.vm.box = "http://files.dryga.com/boxes/osx-yosemite-0.2.1.box"
+  # alternate better download:
+  config.vm.box = "AndrewDryga/vagrant-box-osx"
+# Synced folder are not supported under Mac OS X
+  config.vm.synced_folder ".", "/vagrant", :disabled => true
+
+  # Temporary fix for annoying "Replace key" issue
+  config.ssh.insert_key = false
+  config.vm.network "public_network"
+  #config.vm.network "private_network", type: "dhcp"
+  #  config.ssh.private_key_path = "~/.ssh/id_rsa"
+  #  config.ssh.username = 'vagrant'
+  #  config.ssh.password = 'vagrant'
+  config.vm.provider "virtualbox" do |v|
+    # Fix "hfs mounted macintosh hd on device root_device" issue
+    v.customize ["modifyvm", :id, "--cpuidset", "1","000206a7","02100800","1fbae3bf","bfebfbff"]
+    v.customize ["modifyvm", :id, "--usb", "on"]
+    #v.customize ["modifyvm", :id, "--usbehci", "on"]
+    #v.customize ["modifyvm", :id, "--usbxhci", "on"]
+    v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'Arduino', '--vendorid', '0x2341', '--productid', '0x0043']
+#http://yagamy.logdown.com/posts/138888-serialport-programming-on-platform-virtual-machines
+    v.customize ["modifyvm", :id, "--uart1", "0x3f8", "4"]
+    # Some more hacks for device recognition
+    v.customize ["setextradata", :id, "VBoxInternal/Devices/efi/0/Config/DmiSystemProduct", "MacBookPro11,3"]
+    v.customize ["setextradata", :id, "VBoxInternal/Devices/efi/0/Config/DmiSystemVersion", "1.0"]
+    v.customize ["setextradata", :id, "VBoxInternal/Devices/efi/0/Config/DmiBoardProduct", "Iloveapple"]
+    v.customize ["setextradata", :id, "VBoxInternal/Devices/smc/0/Config/DeviceKey", "ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"]
+    #vb.customize ["setextradata", :id, "VBoxInternal/Devices/smc/0/Config/GetKeyFromRealSMC", "1"]
+    #v.gui = true
+  end
+
+  config.vm.provision "shell" do |s|
+    s.inline = "brew update;mkdir TESSEL2;
+     cd TESSEL2;
+     git clone https://github.com/Student007/t2-cli.git --branch t2-root --single-branch;
+     cd t2-cli;
+     sudo  npm link --local;
+     cd ..;
+     npm install -g git+https://github.com/Student007/t2-vm.git;
+     brew cask install virtualbox;
+     curl -o Oracle_VM_VirtualBox_Extension_Pack-5.0.2-102096.vbox-extpack http://download.virtualbox.org/virtualbox/5.0.2/Oracle_VM_VirtualBox_Extension_Pack-5.0.2-102096.vbox-extpack;
+     sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-5.0.2-102096.vbox-extpack;
+     rm Oracle_VM_VirtualBox_Extension_Pack-5.0.2-102096.vbox-extpack;
+     npm install grunt-cli -g;
+     cd t2-cli;
+     grunt test;
+     sudo npm install -g git+https://github.com/tessel/t2-vm;
+     npm install -g git+https://github.com/tessel/t2-compiler"
+    s.privileged   = false
+  end
+
+  #config.vm.provision :shell, :inline => ""
+
+end
