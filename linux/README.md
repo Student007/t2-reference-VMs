@@ -1,6 +1,6 @@
-### installation
+### Installation
 
-After you've [installed vagrant](http://www.vagrantup.com/downloads) run
+After you've [installed vagrant](http://www.vagrantup.com/downloads) copy the [Vagrantfile](Vagrantfile) and run
 ```
 vagrant up
 ```

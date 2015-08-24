@@ -6,7 +6,7 @@ We decided to use Windows 7 because it is usable after evaluation phase with acc
 
 After you have gone through the GUI based installation you will be able to use the common `vagrant ssh` to work on command line as wanted.
 
-### installation
+### Installation
 
 After you've [installed vagrant](http://www.vagrantup.com/downloads) copy the [Vagrantfile](Vagrantfile), [provision.sh](provision.sh), [postprovision.sh](postprovision.sh) and [t2stuff.sh](t2stuff.sh) into a local folder.
 
