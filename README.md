@@ -17,4 +17,4 @@ There is a given challenge in general, because of NPM isn't able to install some
 **The process of creating Vagrantfiles is an interesting method of progressing this task.**
 
 ### T2-vm create
-It is known, you cannot create virtual Tessels within the Linux and Mac OS X based VMs. Only on the Windows VM it works. The case of Windows VMs can do this let assume me this is pointing on a system dependency what I couldn't figure out.
+It is known, you cannot create virtual Tessels within the Linux and Mac OS X based VMs. Only on the Windows VM it works. The case that Windows VMs are able to do this let assume me: This is pointing on a system dependency what I couldn't figure out yet.
