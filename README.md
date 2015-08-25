@@ -1,5 +1,24 @@
 # t2-reference-VMs
-Reference installations (VirtualBox) for testing Tessel 2 CLI on Windows 7, Ubuntu 14.04 and Mac OS X Yosemite
+Reference installations (VirtualBox) for testing Tessel 2 CLI on Windows 7, Ubuntu 14.04 and Mac OS X Yosemite.
+
+### Preperation
+After you've [installed vagrant](http://www.vagrantup.com/downloads), [VirtualBox](https://www.virtualbox.org/wiki/Downloads) and [VirtualBox Extension Pack](http://download.virtualbox.org/virtualbox/5.0.2/Oracle_VM_VirtualBox_Extension_Pack-5.0.2-102096.vbox-extpack) you've to install the [trigger plugin](https://github.com/emyl/vagrant-triggers) as followed:
+
+```
+vagrant plugin install vagrant-triggers
+```
+It is used by the Linux and Windows VM.
+**Attention**: It wasn't possible to create a conditional trigger so you have to edit the Vagrantfiles after your VM is created successfully.
+```
+if ARGV[0] == 'up'
+    config.trigger.after :up do
+      #run "echo 'I am uncommented after second vagrant up by YOU !!!..."+port.to_s+"'"
+    end
+end
+```
+It is simple uncommenting the *run* lines.
+
+### Vagrantfiles
 
 [Windows 7 Professional VM](windows/README.md)
 
